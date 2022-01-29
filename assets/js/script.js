@@ -1,9 +1,6 @@
-var currentDate = moment().format("dddd, MMM Do YYYY");
-$("#currentDay").append(currentDate);
-
-var currentTime = moment().format("h:mm:ss A");
-$("#currentTime").append("<span>").text(currentTime);
-
+setInterval(function() {
+    $("#currentDay").text(moment().format("dddd, MMM Do YYYY, hh:mm:ss a"));
+}, 1000);
 
 var assignments = JSON.parse(localStorage.getItem("assignments")) || [];
 
@@ -16,13 +13,14 @@ for (let hour = 8; hour <= 17; hour++) { //specifying the time will start at 8 a
     times.push(moment({hour}).format("h:mm A")); //pushing times into array in a way that moment can understand.
 }
 var attrInput = ['input-1', 'input-2', 'input-3', 'input-4','input-5', 'input-6', 'input-7', 'input-8', 'input-9'];
+var container = ['cont-1', 'cont-2', 'cont-3', 'cont-4','cont-5', 'cont-6', 'cont-7', 'cont-8','cont-9'];
 for (var i = 0; i < times.length; i++) {
     var assmtDiv = $("<div>").addClass("col-1 px-1 bg-info badge text-white justify-content-*-around align-content-*-around").text(times[i]).css({fontSize: 18}).height('36px');
-    var assmtInput = $("<input>").addClass("col-10 form-control").attr("id", (attrInput[i])).attr("type", "text");
+    var assmtInput = $("<input>").addClass("col-10 form-control").attr("id", attrInput[i]).attr("type", "text");
     var assmtSaveBtn = $("<btn>").addClass('col-1');
     var assmtSaveIcon = $("<i>").css({fontSize: 18}).addClass("fa fa-save btn btn-primary");
     assmtSaveBtn.append(assmtSaveIcon);
-    var assmtContainer = $("<div>").addClass("row m-2 p-2");
+    var assmtContainer = $("<div>").addClass(`row m-2 p-2 ${checkTime()}`).attr("id", container[i]);
     assmtContainer.append(assmtDiv, assmtInput, assmtSaveBtn);
     timeSlotSection.append(assmtContainer);
 }
@@ -45,8 +43,6 @@ for (var i = 0; i < saveBtns.length; i++) {
     })
 }
 
-
-
 function load () {
     for(var i = 0; i < assignments.length; i++) {
         console.log(`#${assignments[i].inputId}`)
@@ -56,12 +52,16 @@ function load () {
 }
 
 function checkTime () {
+    let currentTime = moment().format("H");
+    // var container = $("#")
     for (var i = 0; i < times.length; i++) {
-      $(assmtInput[i]).parent.removeClass("bg-danger bg-warning");
-      if (times[i] <= currentTime) {
-        $(this).parent.addClass("bg-danger");
-      } else if (times[i] >= currentTime + 2) {
-        $(this).parent.addClass("bg-warning");
+        var splitTime = parseInt(times[i].split(":")[0]);
+      if (splitTime === currentTime) {
+        return "present";
+      } else if (splitTime > currentTime) {
+        return "future";
+      } else if (splitTime < currentTime) {
+        return "past";
       }
     }
 }
